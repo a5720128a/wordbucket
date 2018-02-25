@@ -1,4 +1,6 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
 import unittest
 
 class NewVisitorTest(unittest.TestCase):  
@@ -8,6 +10,11 @@ class NewVisitorTest(unittest.TestCase):
 
     def tearDown(self):  
         self.browser.quit()
+
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrieve_it_later(self):  
         # Ann has heard about a cool new online word app. She goes
@@ -33,12 +40,19 @@ class NewVisitorTest(unittest.TestCase):
         # "1: weeb" as an item in a word list table
         inputbox.send_keys(Keys.ENTER)  
         time.sleep(1)
+        self.check_for_row_in_list_table('1: weeb')
+        
+        # There is still a text box inviting her to add another item. She
+        # enters "PogChamp"
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('PogChamp')
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')  
-        self.assertTrue(
-            any(row.text == '1: weeb' for row in rows)
-        )
+        # The page updates again, and now shows both items on her list
+        self.check_for_row_in_list_table('1: weeb')
+        self.check_for_row_in_list_table('2: PogChamp')
+        
         self.fail('Finish the test!') 
 
 if __name__ == '__main__':  
