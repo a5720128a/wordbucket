@@ -5,13 +5,13 @@
     <body>
         <h1>Word Bucket</h1>
         <form method="POST">
-            <input name="item_text" id="id_new_item" placeholder="Add new word" />
+            <input name="word_text" id="id_new_word" placeholder="Add new word" />
             {% csrf_token %}
         </form>
 
         <table id="id_list_table">
-            {% for item in items %}
-                <tr><td>{{ forloop.counter }}: {{ item.word }}</td></tr>
+            {% for word in words %}
+                <tr><td>{{ forloop.counter }}: {{ word.word }}</td></tr>
             {% endfor %}
         </table>
     </body>

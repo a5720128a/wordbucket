@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 
 from wordbucket.views import home_page  
-from wordbucket.models import Item
+from wordbucket.models import Word, Explanation, Like_and_dislike
 
 class HomePageTest(TestCase):
 
@@ -13,14 +13,14 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'home.html')
 
     def test_can_save_a_POST_request(self):
-        self.client.post('/', data={'item_text': 'A new list item'})
+        self.client.post('/', data={'word_text': 'A new list word'})
 
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.word, 'A new list item')
+        self.assertEqual(Word.objects.count(), 1)
+        new_word = Word.objects.first()
+        self.assertEqual(new_word.word, 'A new list word')
 
     def test_redirects_after_POST(self):
-        response = self.client.post('/', data={'item_text': 'A new list item'})
+        response = self.client.post('/', data={'word_text': 'A new list word'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
 
@@ -34,30 +34,81 @@ class HomePageTest(TestCase):
 
         self.assertTemplateUsed(response, 'home.html')
     
-    def test_displays_all_list_items(self):
-        Item.objects.create(word='itemey 1')
-        Item.objects.create(word='itemey 2')
+    def test_displays_all_list_words(self):
+        Word.objects.create(word='wordey 1')
+        Word.objects.create(word='wordey 2')
 
         response = self.client.get('/')
 
-        self.assertIn('itemey 1', response.content.decode())
-        self.assertIn('itemey 2', response.content.decode())
+        self.assertIn('wordey 1', response.content.decode())
+        self.assertIn('wordey 2', response.content.decode())
 
-class ItemModelTest(TestCase):
 
-    def test_saving_and_retrieving_items(self):
-        first_item = Item()
-        first_item.word = 'The first (ever) word item'
-        first_item.save()
+class WordAndExplanationModelTest(TestCase):
 
-        second_item = Item()
-        second_item.word = 'Item the second'
-        second_item.save()
+    def test_saving_and_retrieving_words(self):
 
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
+        word_ = Word()
+        word_.save()
+        
+        first_explanation = Explanation()
+        first_explanation.explanation_text = 'The first (ever) word explanation'
+        first_explanation.word = word_
+        first_explanation.save()
 
-        first_saved_item = saved_items[0]
-        second_saved_item = saved_items[1]
-        self.assertEqual(first_saved_item.word, 'The first (ever) word item')
-        self.assertEqual(second_saved_item.word, 'Item the second')
+        second_explanation = Explanation()
+        second_explanation.explanation_text = 'Explanation the second'
+        second_explanation.word = word_
+        second_explanation.save()
+
+        saved_word = Word.objects.first()
+        self.assertEqual(saved_word, word_)
+
+        saved_explanations = Explanation.objects.all()
+        self.assertEqual(saved_explanations.count(), 2)
+
+        first_saved_explanation = saved_explanations[0]
+        second_saved_explanation = saved_explanations[1]
+        self.assertEqual(first_saved_explanation.explanation_text, 'The first (ever) word explanation')
+        self.assertEqual(first_saved_explanation.word, word_)
+        self.assertEqual(second_saved_explanation.explanation_text, 'Explanation the second')
+        self.assertEqual(second_saved_explanation.word, word_)
+
+
+class ExplanationAndLike_and_dislikeModelTest(TestCase):
+
+    def test_saving_and_retrieving_like_and_dislike(self):
+
+        word_ = Word()
+        word_.save()
+        
+        explanation_ = Explanation()
+        explanation_.explanation_text = 'test'
+        explanation_.word = word_
+        explanation_.save()
+
+        first_votes_like = Like_and_dislike()
+        first_votes_like.votes_like = 1
+        first_votes_like.explanation = explanation_
+        first_votes_like.save()
+
+        second_votes_dislike = Like_and_dislike()
+        second_votes_dislike.votes_dislike = 2
+        second_votes_dislike.explanation = explanation_
+        second_votes_dislike.save()
+
+        saved_explanation = Explanation.objects.first()
+        self.assertEqual(saved_explanation, explanation_)
+
+        saved_likes_and_dislikes = Like_and_dislike.objects.all()
+        self.assertEqual(saved_likes_and_dislikes.count(), 2)
+
+        first_saved_votes_like = saved_likes_and_dislikes[0]
+        second_saved_votes_like = saved_likes_and_dislikes[1]
+        self.assertEqual(first_saved_votes_like.votes_like, 1)
+        self.assertEqual(first_saved_votes_like.explanation, explanation_)
+        self.assertEqual(second_saved_votes_like.votes_dislike, 2)
+        self.assertEqual(second_saved_votes_like.explanation, explanation_)
+
+
+

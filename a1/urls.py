@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path, re_path
 from wordbucket import views
+from wordbucket import urls as wordbucket_urls
 
 urlpatterns = [
     path('', views.home_page, name='home'),
+    path('wordbucket/', include(wordbucket_urls)),
     path('admin/', admin.site.urls),
 ]

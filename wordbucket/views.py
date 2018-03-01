@@ -1,10 +1,10 @@
 from django.shortcuts import redirect, render
-from wordbucket.models import Item
+from wordbucket.models import Word
 
 def home_page(request):
     if request.method == 'POST':
-        Item.objects.create(word=request.POST['item_text'])
+        Word.objects.create(word=request.POST['word_text'])
         return redirect('/')
 
-    items = Item.objects.all()
-    return render(request, 'home.html', {'items': items})
+    words = Word.objects.all()
+    return render(request, 'home.html', {'words': words})
