@@ -4,7 +4,7 @@ class Word(models.Model):
     #word (text)
     word = models.TextField(default='')
     def __str__(self):
-        return self.question_text
+        return self.word
 
 class Explanation(models.Model):
     #foreign key
@@ -19,3 +19,7 @@ class Like_and_dislike(models.Model):
     #votes count
     votes_like = models.IntegerField(default=0)
     votes_dislike = models.IntegerField(default=0)
+    def __str__(self):
+        return self.votes_like
+    def __str__(self):
+        return self.votes_dislike

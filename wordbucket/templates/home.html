@@ -4,12 +4,14 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
-        <form method="POST">
-            <input name="word_text" id="id_new_word" placeholder="Add new word" />
+        <form method="POST" id="form1">
+            <input name="word_input" id="id_new_word" placeholder="Add new word" />
+            <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />
             {% csrf_token %}
         </form>
+        <button type="submit" form="form1" value="Submit">Submit</button>
 
-        <table id="id_list_table">
+        <table id="id_word_table">
             {% for word in words %}
                 <tr><td>{{ forloop.counter }}: {{ word.word }}</td></tr>
             {% endfor %}

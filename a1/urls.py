@@ -19,7 +19,6 @@ from wordbucket import views
 from wordbucket import urls as wordbucket_urls
 
 urlpatterns = [
-    path('', views.home_page, name='home'),
-    path('wordbucket/', include(wordbucket_urls)),
+    path('', include(wordbucket_urls)),
     path('admin/', admin.site.urls),
 ]

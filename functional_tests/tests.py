@@ -12,7 +12,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.quit()
 
     def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
+        table = self.browser.find_element_by_id('id_word_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
@@ -27,7 +27,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertIn('Word Bucket', header_text) 
         
         # She is invited to enter a word item straight away
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id('id_new_word')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
             'Add new word'
@@ -44,7 +44,7 @@ class NewVisitorTest(LiveServerTestCase):
         
         # There is still a text box inviting her to add another item. She
         # enters "PogChamp"
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id('id_new_word')
         inputbox.send_keys('PogChamp')
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
@@ -52,8 +52,6 @@ class NewVisitorTest(LiveServerTestCase):
         # The page updates again, and now shows both items on her list
         self.check_for_row_in_list_table('1: weeb')
         self.check_for_row_in_list_table('2: PogChamp')
-        
-        self.fail('Finish the test!') 
 
 if __name__ == '__main__':  
     unittest.main(warnings='ignore')
