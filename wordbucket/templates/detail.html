@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Word Bucket</title>
+    </head>
+    <body>
+        <h1>Word Bucket</h1>
+        <form method="POST" id="form1">
+            <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />
+            {% csrf_token %}
+        </form>
+        <button type="submit" form="form1" value="Submit">Submit</button>
+
+        <h2>{{ word }}</h2>
+
+        <table id="id_explanation_table">
+            {% for explanation in word.explanation_set.all %}
+                <tr><td>explanation {{ forloop.counter }} : {{ explanation.explanation_text }}</td></tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

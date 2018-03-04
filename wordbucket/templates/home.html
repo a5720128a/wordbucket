@@ -4,6 +4,7 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
+        <h4>{{ d_message }}</h4>
         <form method="POST" id="form1">
             <input name="word_input" id="id_new_word" placeholder="Add new word" />
             <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />
@@ -13,7 +14,7 @@
 
         <table id="id_word_table">
             {% for word in words %}
-                <tr><td>{{ forloop.counter }}: {{ word.word }}</td></tr>
+                <tr><td id="word.word"><a href="{% url 'wordbucket:detail' word.id %}">{{ word.word }}</a></td></tr>
             {% endfor %}
         </table>
     </body>

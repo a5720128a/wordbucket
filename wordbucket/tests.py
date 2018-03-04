@@ -2,7 +2,6 @@ from django.urls import resolve
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
-
 from wordbucket.views import home_page  
 from wordbucket.models import Word, Explanation, Like_and_dislike
 
@@ -46,7 +45,7 @@ class HomePageTest(TestCase):
         self.assertIn('wordey 2', response.content.decode())
 
 
-class WordAndExplanationModelTest(TestCase):
+class AllAroundModelsTest(TestCase):
 
     def test_saving_and_retrieving_words(self):
 
@@ -75,9 +74,6 @@ class WordAndExplanationModelTest(TestCase):
         self.assertEqual(first_saved_explanation.word, word_)
         self.assertEqual(second_saved_explanation.explanation_text, 'Explanation the second')
         self.assertEqual(second_saved_explanation.word, word_)
-
-
-class ExplanationAndLike_and_dislikeModelTest(TestCase):
 
     def test_saving_and_retrieving_like_and_dislike(self):
 
@@ -112,5 +108,38 @@ class ExplanationAndLike_and_dislikeModelTest(TestCase):
         self.assertEqual(second_saved_votes_like.votes_dislike, 2)
         self.assertEqual(second_saved_votes_like.explanation, explanation_)
 
+class WordViewTest(TestCase):
+    
+    def test_passes_correct_word_to_template(self):
+        other_word = Word.objects.create()
+        correct_word = Word.objects.create()
+        response = self.client.get('/%d/' % (correct_word.id,))
+        self.assertEqual(response.context['word'], correct_word)
+
+    def test_uses_word_template(self): # detail page
+        word_ = Word.objects.create()
+        response = self.client.get('/%d/' % (word_.id,))
+        self.assertTemplateUsed(response, 'detail.html')
+
+
+    def test_displays_only_explanation_for_that_word(self):
+        correct_word = Word.objects.create()
+        Explanation.objects.create(explanation_text='itemey 1', word=correct_word)
+        Explanation.objects.create(explanation_text='itemey 2', word=correct_word)
+        other_word = Word.objects.create()
+        Explanation.objects.create(explanation_text='other word item 1', word=other_word)
+        Explanation.objects.create(explanation_text='other word item 2', word=other_word)
+
+        response = self.client.get('/%d/' % (correct_word.id,))
+
+        self.assertContains(response, 'itemey 1')
+        self.assertContains(response, 'itemey 2')
+        self.assertNotContains(response, 'other word item 1')
+        self.assertNotContains(response, 'other word item 2')
+'''
+class NewWordTest(TestCase):
+class NewExplanationTest(TestCase):
+class VoteTest(TestCase):
+class SearchAndBrowseTest(TestCase):'''
 
 
