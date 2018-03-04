@@ -4,7 +4,8 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
-        <form method="POST" id="form1">
+        <h4>{{ d_message }}</h4>
+        <form method="POST" id="form1" action="/{{ word.id }}/add_explanation">
             <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />
             {% csrf_token %}
         </form>

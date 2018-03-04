@@ -108,8 +108,9 @@ class NewVisitorTest(LiveServerTestCase):
         explanationbox = self.browser.find_element_by_id('id_new_eplanation')
         explanationbox.send_keys('non japanese otaku!')
         inputbox.send_keys(Keys.ENTER)
+        self.check_for_row_in_list_table('weeb')
         
-        # She notice message "duplicate word, your explanation add to existing word."        
+        # She notice message "duplicate word, your explanation add to existing word."              
         message_text = self.browser.find_element_by_tag_name('h4').text  
         self.assertIn('duplicate word, your explanation add to existing word.', message_text)
         

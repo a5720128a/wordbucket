@@ -5,7 +5,7 @@
     <body>
         <h1>Word Bucket</h1>
         <h4>{{ d_message }}</h4>
-        <form method="POST" id="form1">
+        <form method="POST" id="form1" action="/add_word">
             <input name="word_input" id="id_new_word" placeholder="Add new word" />
             <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />
             {% csrf_token %}

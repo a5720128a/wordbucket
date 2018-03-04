@@ -11,20 +11,6 @@ class HomePageTest(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
-    def test_can_save_a_POST_request(self):
-        self.client.post('/', data={'word_input': 'A new list word','explanation_input': 'yes it is'})
-
-        self.assertEqual(Word.objects.count(), 1)
-        self.assertEqual(Explanation.objects.count(), 1)
-        new_word = Word.objects.first()
-        self.assertEqual(new_word.word, 'A new list word')
-
-    def test_redirects_after_POST(self):
-        response = self.client.post('/', data={'word_input': 'A new list word','explanation_input': 'yes it is'})
-        
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
     def test_home_page_returns_correct_html(self):
         response = self.client.get('/')  
 
@@ -136,9 +122,52 @@ class WordViewTest(TestCase):
         self.assertContains(response, 'itemey 2')
         self.assertNotContains(response, 'other word item 1')
         self.assertNotContains(response, 'other word item 2')
-'''
+
 class NewWordTest(TestCase):
+    
+    def test_can_save_a_POST_request(self):
+        self.client.post('/add_word', data={'word_input': 'A new list word','explanation_input': 'yes it is'})
+
+        self.assertEqual(Word.objects.count(), 1)
+        self.assertEqual(Explanation.objects.count(), 1)
+        new_word = Word.objects.first()
+        self.assertEqual(new_word.word, 'A new list word')
+
+
+    def test_redirects_after_POST(self):
+        response = self.client.post('/add_word', data={'word_input': 'A new list word','explanation_input': 'yes it is'})
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
 class NewExplanationTest(TestCase):
+    
+    def test_can_save_a_POST_request_to_an_existing_word(self):
+        other_word = Word.objects.create()
+        correct_word = Word.objects.create()
+
+        self.client.post(
+            '/%d/add_explanation' % (correct_word.id,),
+            data={'explanation_input': 'A new explanation for an existing word'}
+        )
+
+        self.assertEqual(Explanation.objects.count(), 1)
+        new_explanation = Explanation.objects.first()
+        self.assertEqual(new_explanation.explanation_text, 'A new explanation for an existing word')
+        self.assertEqual(new_explanation.word, correct_word)
+
+
+    def test_redirects_to_word_view(self):
+        other_word = Word.objects.create()
+        correct_word = Word.objects.create()
+
+        response = self.client.post(
+            '/%d/add_explanation' % (correct_word.id,),
+            data={'explanation_input': 'A new item for an existing word'}
+        )
+
+        self.assertRedirects(response, '/%d/' % (correct_word.id,))
+'''
 class VoteTest(TestCase):
 class SearchAndBrowseTest(TestCase):'''
 
