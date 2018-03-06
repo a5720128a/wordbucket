@@ -167,8 +167,25 @@ class NewExplanationTest(TestCase):
         )
 
         self.assertRedirects(response, '/%d/' % (correct_word.id,))
+
+class SearchAndBrowseTest(TestCase):
+
+    def test_uses_search_template(self):
+        response = self.client.get('/search')
+        self.assertTemplateUsed(response, 'search.html')
+
+    def test_render_after_POST(self):
+        response = self.client.post('/search', data={'search_input': 'A new list word'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_return_correct_text(self):
+        self.client.post('/add_word', data={'word_input': 'A new list word','explanation_input': 'yes it is'})
+        response = self.client.post('/search', data={'search_input': 'A new list word'})
+        html = response.content.decode('utf8')
+        self.assertIn('A new list word', html)
+                
 '''
 class VoteTest(TestCase):
-class SearchAndBrowseTest(TestCase):'''
+'''
 
 

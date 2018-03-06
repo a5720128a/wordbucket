@@ -42,7 +42,7 @@ class NewVisitorTest(LiveServerTestCase):
                 time.sleep(0.5)
         
 
-    def test_can_start_a_list_and_retrieve_it_later(self):  
+    def test_can_start_a_list_and_retrieve_it_later_and_search(self):  
         # Ann has heard about a cool new online word app. She goes
         # to check out its homepage
         self.browser.get(self.live_server_url)
@@ -81,6 +81,14 @@ class NewVisitorTest(LiveServerTestCase):
         self.check_for_row_in_list_table('weeb')
         self.check_for_row_in_list_table('PogChamp')
 
+        # She type "we" in search text box
+        inputbox = self.browser.find_element_by_id('id_search')
+        inputbox.send_keys('we')
+        inputbox.send_keys(Keys.ENTER)
+
+        # Now html render 'search' page. and 'weeb' url appear on her screen
+        self.check_for_row_in_list_table('weeb')
+        
     def test_can_view_the_word_explanation_and_add_exist_word_new_explanation(self):
         # Ann has heard about a cool new online word app. She goes
         # to check out its homepage
@@ -127,6 +135,7 @@ class NewVisitorTest(LiveServerTestCase):
         # "awesome!" as an item in a "weeb" word table
         self.check_for_row_in_explanation_table('explanation 1 : otaku!')
         self.check_for_row_in_explanation_table('explanation 2 : non japanese otaku!')
+          
 
 if __name__ == '__main__':  
     unittest.main(warnings='ignore')

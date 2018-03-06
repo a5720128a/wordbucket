@@ -40,12 +40,22 @@ def add_explanation(request, word_id):
         d_message = "duplicate explanation, please enter new explanation."
         return render(request, 'detail.html', {'word': word_, 'd_message': d_message})
         
+def search(request):    
+    word_reference = 'no'
+    if request.method == 'POST':
+        word_reference = str(request.POST['search_input'])
+    if word_reference != 'no' :
+        word_found = Word.objects.filter(word__contains=word_reference)
+        if not word_found :
+            message = "WORD not found"
+            return render(request, 'search.html', {'message': message})
+        else :
+            return render(request, 'search.html', {'word_found': word_found})
+    else :
+        return render(request, 'search.html')
 
 def vote_like(request):
     pass
 
 def vote_dislike(request):
-    pass
-
-def search(request):
     pass

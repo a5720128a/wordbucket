@@ -17,5 +17,12 @@
                 <tr><td id="word.word"><a href="{% url 'wordbucket:detail' word.id %}">{{ word.word }}</a></td></tr>
             {% endfor %}
         </table>
+        <br>
+        <form action = "/search" id="form_search" method="POST">
+            <input tpye="text" id="id_search" name = "search_input" placeholder="Search word" />
+            <input type = "submit" form="form_search" value = "Search">
+            {% csrf_token %}
+        </form>
+        
     </body>
 </html>
