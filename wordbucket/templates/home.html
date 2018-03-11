@@ -4,6 +4,11 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
+        <br>browse<br>
+            {% for alphabet in alphabets %}
+                <a href="{% url 'wordbucket:search' alphabet %}">{{ alphabet }}</a>&nbsp;
+            {% endfor %}
+        <br>
         <h4>{{ d_message }}</h4>
         <form method="POST" id="form1" action="/add_word">
             <input name="word_input" id="id_new_word" placeholder="Add new word" />
@@ -18,7 +23,7 @@
             {% endfor %}
         </table>
         <br>
-        <form action = "/search" id="form_search" method="POST">
+        <form action = "/search/byword" id="form_search" method="POST">
             <input tpye="text" id="id_search" name = "search_input" placeholder="Search word" />
             <input type = "submit" form="form_search" value = "Search">
             {% csrf_token %}
