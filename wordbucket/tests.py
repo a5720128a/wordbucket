@@ -184,8 +184,43 @@ class SearchAndBrowseTest(TestCase):
         html = response.content.decode('utf8')
         self.assertIn('A new list word', html)
                 
-'''
 class VoteTest(TestCase):
-'''
+    
+    def test_redirects_like_to_word_view(self):
+        word_ = Word()
+        word_.save()
+        
+        explanation_ = Explanation()
+        explanation_.explanation_text = 'test'
+        explanation_.word = word_
+        explanation_.save()
+        
+        votes_like = Like_and_dislike()
+        votes_like.votes_like = 0
+        votes_like.explanation = explanation_
+        votes_like.save()
 
+        response = self.client.get(
+            '/%d/like' % (explanation_.id,)
+        )
+
+    def test_redirects_dislike_to_word_view(self):
+        word_ = Word()
+        word_.save()
+        
+        explanation_ = Explanation()
+        explanation_.explanation_text = 'test'
+        explanation_.word = word_
+        explanation_.save()
+
+        votes_dislike = Like_and_dislike()
+        votes_dislike.votes_dislike = 0
+        votes_dislike.explanation = explanation_
+        votes_dislike.save()
+        
+        response = self.client.get(
+            '/%d/like' % (explanation_.id,)
+        )
+
+        self.assertRedirects(response, '/%d/' % (explanation_.id,))
 

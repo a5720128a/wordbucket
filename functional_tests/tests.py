@@ -133,8 +133,8 @@ class NewVisitorTest(LiveServerTestCase):
 
         # now the page "weeb" word
         # "awesome!" as an item in a "weeb" word table
-        self.check_for_row_in_explanation_table('explanation 1 : otaku!')
-        self.check_for_row_in_explanation_table('explanation 2 : non japanese otaku!')
+        self.check_for_row_in_explanation_table('explanation 1 : otaku!\n                         0  LIKE   0  DISLIKE')
+        self.check_for_row_in_explanation_table('explanation 2 : non japanese otaku!\n                         0  LIKE   0  DISLIKE')
           
 
 if __name__ == '__main__':  

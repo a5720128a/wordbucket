@@ -15,7 +15,16 @@
 
         <table id="id_explanation_table">
             {% for explanation in word.explanation_set.all %}
-                <tr><td>explanation {{ forloop.counter }} : {{ explanation.explanation_text }}</td></tr>
+                <tr>
+                    <td>explanation {{ forloop.counter }} : {{ explanation.explanation_text }}
+                    {% for vote in explanation.like_and_dislike_set.all %}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {{ vote.votes_like }} &nbsp;<a href="{% url 'wordbucket:like' explanation.id %}">LIKE</a>
+                        &nbsp; {{ vote.votes_dislike }} &nbsp;<a href="{% url 'wordbucket:dislike' explanation.id %}">DISLIKE</a>
+                    {% endfor %}<br><br>
+                    </td>
+                </tr>
             {% endfor %}
         </table>
         <br>

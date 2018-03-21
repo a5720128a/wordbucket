@@ -1,4 +1,5 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, HttpResponseRedirect
+from django.urls import reverse
 from wordbucket.models import Word, Explanation, Like_and_dislike
 import string
 
@@ -21,12 +22,14 @@ def add_word(request):
     d_query = Word.objects.filter(word=word_reference)
     if not d_query :
         word_ = Word.objects.create(word = request.POST['word_input'])
-        Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
+        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
+        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
         return redirect('/')
     else :
         # duplacate word id
         dword_id = Word.objects.get(word = word_reference)
-        Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=dword_id)
+        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=dword_id)
+        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
         d_message = "duplicate word, your explanation add to existing word."
         return render(request, 'home.html', {'words': words, 'd_message': d_message})
 
@@ -36,7 +39,8 @@ def add_explanation(request, word_id):
     # query for duplicate explanation
     d_query = Explanation.objects.filter(explanation_text=explanation_reference)
     if not d_query :
-        Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
+        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
+        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
         return redirect('/%d/' % (word_.id,))
     else :
         d_message = "duplicate explanation, please enter new explanation."
@@ -62,8 +66,27 @@ def search(request, word_search):
         else :
             return render(request, 'search.html', {'word_found': word_found})
 
-def vote_like(request):
-    pass
+def vote_like(request, explanation_id):
+    explanation_ = Explanation.objects.get(id=explanation_id)
+    selected_explanation = explanation_.like_and_dislike_set.all()
+    vote_like_ = selected_explanation.count()
+    if vote_like_ == 0 :
+        Like_and_dislike.objects.create(vote_like=1, explanation=explanation_)
+    else :
+        for voteslike in selected_explanation :
+            voteslike.votes_like += 1
+            voteslike.save()
+        return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
+    
 
-def vote_dislike(request):
-    pass
+def vote_dislike(request, explanation_id):
+    explanation_ = Explanation.objects.get(id=explanation_id)
+    selected_explanation = explanation_.like_and_dislike_set.all()
+    vote_dislike_ = selected_explanation.count()
+    if vote_dislike_ == 0 :
+        Like_and_dislike.objects.create(vote_dislike=1, explanation=explanation_)
+    else :
+        for votesdislike in selected_explanation :
+            votesdislike.votes_dislike += 1
+            votesdislike.save()
+        return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
