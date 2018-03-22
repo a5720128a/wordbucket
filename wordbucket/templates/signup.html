@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>Word Bucket : LOGIN</title>
+    </head>
+    <body>
+        <h1>Word Bucket</h1>
+        <h2>Sign up</h2>
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign up</button>
+          </form>
+          <a href="{% url 'wordbucket:home' %}">HOME</a></td></tr>
+
+    </body>
+</html>

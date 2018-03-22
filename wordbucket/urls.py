@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+from django.contrib.auth import views as auth_views
 from wordbucket import views
 
 app_name = 'wordbucket'
@@ -10,4 +11,9 @@ urlpatterns = [
     re_path(r'^(\d+)/add_explanation$', views.add_explanation, name='add_explanation'),
     re_path(r'^(\d+)/like$', views.vote_like, name='like'),
     re_path(r'^(\d+)/dislike$', views.vote_dislike, name='dislike'),
+    
+    # auth part
+    re_path(r'^signup/$', views.signup, name='signup'),
+    re_path(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
+    re_path(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
 ]

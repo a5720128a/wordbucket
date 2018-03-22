@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, render, HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
 from wordbucket.models import Word, Explanation, Like_and_dislike
 import string
 
@@ -90,3 +92,19 @@ def vote_dislike(request, explanation_id):
             votesdislike.votes_dislike += 1
             votesdislike.save()
         return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
+
+# auth. part
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})

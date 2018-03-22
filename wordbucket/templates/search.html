@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <title>Word Bucket</title>
+    </head>
+    <body>
+        
+       <h1>Search Word Bucket </h1>
+        {% if user.is_authenticated %}
+          Hi {{ user.username }}!
+          <p><a href="{% url 'wordbucket:logout' %}">logout</a></p>
+        {% else %}
+          You are not logged in
+          <a href="{% url 'wordbucket:login' %}">LOGIN</a>
+          <br><br>
+        {% endif %}
+       <form action = "/search/byword" method="POST">
+            <input tpye="text" name = "search_input" placeholder="Search word" />
+            <br>
+            <input type = "submit" value = "Submit">
+            {% csrf_token %}
+        </form>
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}       
+        
+        {% if word_found %}
+            <table id="id_word_table">
+            {% for word in word_found %}
+                <tr><td id="word.word"><a href="{% url 'wordbucket:detail' word.id %}">{{ word.word }}</a></td></tr>
+            {% endfor %}
+        </table>
+        {% endif %} 
+
+        <br>
+        <a href="{% url 'wordbucket:home' %}">HOME</a></td></tr>
+    </body>
+</html>

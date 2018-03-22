@@ -4,6 +4,15 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
+        {% if user.is_authenticated %}
+          Hi {{ user.username }}!
+          <p><a href="{% url 'wordbucket:logout' %}">logout</a></p>
+        {% else %}
+          You are not logged in
+          <a href="{% url 'wordbucket:login' %}">LOGIN</a>
+          <br>
+        {% endif %}
+
         <h4>{{ d_message }}</h4>
         <form method="POST" id="form1" action="/{{ word.id }}/add_explanation">
             <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />

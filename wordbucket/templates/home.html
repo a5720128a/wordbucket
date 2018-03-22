@@ -4,6 +4,15 @@
     </head>
     <body>
         <h1>Word Bucket</h1>
+        {% if user.is_authenticated %}
+          Hi {{ user.username }}!
+          <p><a href="{% url 'wordbucket:logout' %}">logout</a></p>
+        {% else %}
+          You are not logged in
+          <a href="{% url 'wordbucket:login' %}">LOGIN</a> or <a href="{% url 'wordbucket:signup' %}">SIGNUP</a>
+          <br>
+        {% endif %}
+
         <br>browse<br>
             {% for alphabet in alphabets %}
                 <a href="{% url 'wordbucket:search' alphabet %}">{{ alphabet }}</a>&nbsp;
