@@ -39,6 +39,11 @@
         <br>
         {% if user.is_authenticated %}
         <a href="{% url 'wordbucket:export' word.id %}">export</a><br><br>
+        <form action="{% url 'wordbucket:import' word.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="csv_file" />
+            <input type="submit" value="Upload" />
+        </form>
         {% endif %}
         <a href="{% url 'wordbucket:home' %}">HOME</a>
     </body>

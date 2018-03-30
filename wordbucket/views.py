@@ -3,9 +3,9 @@ from django.urls import reverse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from wordbucket.models import Word, Explanation, Like_and_dislike
-import string
-import csv
+import string, csv, os, codecs
 from django.http import HttpResponse
+from io import TextIOWrapper
 
 def home_page(request):
     d_message = ""
@@ -129,5 +129,13 @@ def export_csv(request, word_id):
     writer.writerows(output)
     return response
 
-def import_csv(request, explanation_id):
-    pass
+def import_csv(request, word_id):
+    word_ = Word.objects.get(id=word_id)
+    if request.POST and request.FILES:
+        csvfile = TextIOWrapper(request.FILES['csv_file'], encoding=request.encoding)
+        reader = csv.reader(csvfile)
+        next(reader)
+        for row in reader:
+            explanation_ = Explanation.objects.create(explanation_text=row[1], word=word_)
+            Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
+    return HttpResponseRedirect(reverse('wordbucket:detail', args=(word_id,)))
