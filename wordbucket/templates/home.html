@@ -6,10 +6,10 @@
         <h1>Word Bucket</h1>
         {% if user.is_authenticated %}
           Hi {{ user.username }}!
-          <p><a href="{% url 'wordbucket:logout' %}">logout</a></p>
+          <p><a id="logout" href="{% url 'wordbucket:logout' %}">logout</a></p>
         {% else %}
           You are not logged in
-          <a href="{% url 'wordbucket:login' %}">LOGIN</a> or <a href="{% url 'wordbucket:signup' %}">SIGNUP</a>
+          <a id="login" href="{% url 'wordbucket:login' %}">LOGIN</a> or <a id="signup" href="{% url 'wordbucket:signup' %}">SIGNUP</a>
           <br>
         {% endif %}
 

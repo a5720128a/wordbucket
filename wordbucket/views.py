@@ -4,6 +4,8 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from wordbucket.models import Word, Explanation, Like_and_dislike
 import string
+import csv
+from django.http import HttpResponse
 
 def home_page(request):
     d_message = ""
@@ -108,3 +110,24 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
+
+# csv part
+
+def export_csv(request, word_id):
+    output = []
+    word_ = Word.objects.get(id=word_id)
+    selected_word = word_.explanation_set.all()
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename= "export.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['word', 'explanation'])
+    
+    for word in selected_word:
+        output.append([word.word, word.explanation_text])
+
+    writer.writerows(output)
+    return response
+
+def import_csv(request, explanation_id):
+    pass

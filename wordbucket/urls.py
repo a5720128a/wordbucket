@@ -16,4 +16,8 @@ urlpatterns = [
     re_path(r'^signup/$', views.signup, name='signup'),
     re_path(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
     re_path(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
+
+    # csv
+    re_path(r'^(\d+)/import$', views.import_csv, name='import'),
+    re_path(r'^(\d+)/export$', views.export_csv, name='export'),
 ]

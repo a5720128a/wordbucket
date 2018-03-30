@@ -37,6 +37,9 @@
             {% endfor %}
         </table>
         <br>
-        <a href="{% url 'wordbucket:home' %}">HOME</a></td></tr>
+        {% if user.is_authenticated %}
+        <a href="{% url 'wordbucket:export' word.id %}">export</a><br><br>
+        {% endif %}
+        <a href="{% url 'wordbucket:home' %}">HOME</a>
     </body>
 </html>
