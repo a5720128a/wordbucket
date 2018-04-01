@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from wordbucket.models import Word, Explanation, Like_and_dislike
+from wordbucket.models import Word, Explanation, Like, Dislike
 import string, csv, os, codecs
 from django.http import HttpResponse
 from io import TextIOWrapper
@@ -16,38 +16,44 @@ def home_page(request):
 def view_word(request, word_id):
     d_message = ""
     word_ = Word.objects.get(id=word_id)
-    return render(request, 'detail.html', {'word': word_, 'd_message': d_message})
+    like_ = Like.objects.all
+    dislike_ = Dislike.objects.all
+    return render(request, 'detail.html', {'word': word_, 'like': like_, 'dislike': dislike_, 'd_message': d_message})
 
 def add_word(request):
     d_message = ""
     words = Word.objects.order_by('-date_pub')[:5]
     word_reference = str(request.POST['word_input'])
+    explanation_reference = str(request.POST['explanation_input'])
     # query for duplicate word
     d_query = Word.objects.filter(word=word_reference)
-    if not d_query :
+    if (not d_query) and (word_reference != '') :
         word_ = Word.objects.create(word = request.POST['word_input'])
-        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
-        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
+        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], votes_like = 0, votes_dislike = 0, word=word_)
         return redirect('/')
     else :
-        # duplacate word id
-        dword_id = Word.objects.get(word = word_reference)
-        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=dword_id)
-        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
-        d_message = "duplicate word, your explanation add to existing word."
-        return render(request, 'home.html', {'words': words, 'd_message': d_message})
+        word_ = Word.objects.get(word=word_reference)
+        d_query2 = Explanation.objects.filter(explanation_text=explanation_reference, word=word_)
+        if (word_reference != '') and (not d_query2) :
+            # duplacate word id
+            dword_id = Word.objects.get(word = word_reference)
+            explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], votes_like = 0, votes_dislike = 0, word=dword_id)
+            d_message = "duplicate word, your explanation add to existing word."
+        else :
+            d_message = "please enter the word"
+        alphabets = string.ascii_lowercase
+        return render(request, 'home.html', {'words': words, 'd_message': d_message, 'alphabets': alphabets})
 
 def add_explanation(request, word_id):
     word_ = Word.objects.get(id=word_id)
     explanation_reference = str(request.POST['explanation_input'])
     # query for duplicate explanation
-    d_query = Explanation.objects.filter(explanation_text=explanation_reference)
-    if not d_query :
-        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], word=word_)
-        Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
+    d_query = Explanation.objects.filter(explanation_text=explanation_reference, word=word_)
+    if (not d_query) and (explanation_reference != '') :
+        explanation_ = Explanation.objects.create(explanation_text=request.POST['explanation_input'], votes_like = 0, votes_dislike = 0, word=word_)
         return redirect('/%d/' % (word_.id,))
     else :
-        d_message = "duplicate explanation, please enter new explanation."
+        d_message = "duplicate or null explanation, please enter new explanation."
         return render(request, 'detail.html', {'word': word_, 'd_message': d_message})
         
 def search(request, word_search):    
@@ -71,29 +77,28 @@ def search(request, word_search):
             return render(request, 'search.html', {'word_found': word_found})
 
 def vote_like(request, explanation_id):
-    explanation_ = Explanation.objects.get(id=explanation_id)
-    selected_explanation = explanation_.like_and_dislike_set.all()
-    vote_like_ = selected_explanation.count()
-    if vote_like_ == 0 :
-        Like_and_dislike.objects.create(vote_like=1, explanation=explanation_)
-    else :
-        for voteslike in selected_explanation :
-            voteslike.votes_like += 1
-            voteslike.save()
-        return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
-    
+    explanation_ = Explanation.objects.get(id=explanation_id)    
+    if request.user.is_authenticated:
+        d_query = Like.objects.filter(user_like=request.user.username, explanation=explanation_)
+        if not d_query :
+            Like.objects.create(user_like=request.user.username, explanation=explanation_)
+            selected_explanation = explanation_.like_set.all()
+            vote_like_ = selected_explanation.count()
+            explanation_.votes_like = vote_like_
+            explanation_.save()
+    return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
 
 def vote_dislike(request, explanation_id):
-    explanation_ = Explanation.objects.get(id=explanation_id)
-    selected_explanation = explanation_.like_and_dislike_set.all()
-    vote_dislike_ = selected_explanation.count()
-    if vote_dislike_ == 0 :
-        Like_and_dislike.objects.create(vote_dislike=1, explanation=explanation_)
-    else :
-        for votesdislike in selected_explanation :
-            votesdislike.votes_dislike += 1
-            votesdislike.save()
-        return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
+    explanation_ = Explanation.objects.get(id=explanation_id)    
+    if request.user.is_authenticated:
+        d_query = Dislike.objects.filter(user_dislike=request.user.username, explanation=explanation_)
+        if not d_query :
+            Dislike.objects.create(user_dislike=request.user.username, explanation=explanation_)
+            selected_explanation = explanation_.dislike_set.all()
+            vote_dislike_ = selected_explanation.count()
+            explanation_.votes_dislike = vote_dislike_
+            explanation_.save()
+    return HttpResponseRedirect(reverse('wordbucket:detail', args=(explanation_.word.id,)))
 
 # auth. part
 
@@ -136,6 +141,8 @@ def import_csv(request, word_id):
         reader = csv.reader(csvfile)
         next(reader)
         for row in reader:
-            explanation_ = Explanation.objects.create(explanation_text=row[1], word=word_)
-            Like_and_dislike.objects.create(votes_like = 0, votes_dislike = 0, explanation = explanation_)
+            #duplicate explanation
+            d_query = Explanation.objects.filter(explanation_text=row[1], word=word_)
+            if (not d_query) and (row[1] != '') :
+                explanation_ = Explanation.objects.create(explanation_text=row[1], votes_like = 0, votes_dislike = 0, word=word_)
     return HttpResponseRedirect(reverse('wordbucket:detail', args=(word_id,)))

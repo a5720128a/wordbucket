@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from wordbucket.views import home_page  
-from wordbucket.models import Word, Explanation, Like_and_dislike
+from wordbucket.models import Word, Explanation, Like, Dislike
 
 class HomePageTest(TestCase):
 
@@ -71,27 +71,29 @@ class AllAroundModelsTest(TestCase):
         explanation_.word = word_
         explanation_.save()
 
-        first_votes_like = Like_and_dislike()
-        first_votes_like.votes_like = 1
+        first_votes_like = Like()
+        first_votes_like.user_like = '1'
         first_votes_like.explanation = explanation_
         first_votes_like.save()
 
-        second_votes_dislike = Like_and_dislike()
-        second_votes_dislike.votes_dislike = 2
+        second_votes_dislike = Dislike()
+        second_votes_dislike.user_dislike = '2'
         second_votes_dislike.explanation = explanation_
         second_votes_dislike.save()
 
         saved_explanation = Explanation.objects.first()
         self.assertEqual(saved_explanation, explanation_)
 
-        saved_likes_and_dislikes = Like_and_dislike.objects.all()
-        self.assertEqual(saved_likes_and_dislikes.count(), 2)
+        saved_likes = Like.objects.all()
+        self.assertEqual(saved_likes.count(), 1)
+        saved_dislikes = Dislike.objects.all()
+        self.assertEqual(saved_dislikes.count(), 1)
 
-        first_saved_votes_like = saved_likes_and_dislikes[0]
-        second_saved_votes_like = saved_likes_and_dislikes[1]
-        self.assertEqual(first_saved_votes_like.votes_like, 1)
+        first_saved_votes_like = saved_likes[0]
+        second_saved_votes_like = saved_dislikes[0]
+        self.assertEqual(first_saved_votes_like.user_like, '1')
         self.assertEqual(first_saved_votes_like.explanation, explanation_)
-        self.assertEqual(second_saved_votes_like.votes_dislike, 2)
+        self.assertEqual(second_saved_votes_like.user_dislike, '2')
         self.assertEqual(second_saved_votes_like.explanation, explanation_)
 
 class WordViewTest(TestCase):
@@ -192,13 +194,9 @@ class VoteTest(TestCase):
         
         explanation_ = Explanation()
         explanation_.explanation_text = 'test'
+        explanation_.votes_like += 1
         explanation_.word = word_
         explanation_.save()
-        
-        votes_like = Like_and_dislike()
-        votes_like.votes_like = 0
-        votes_like.explanation = explanation_
-        votes_like.save()
 
         response = self.client.get(
             '/%d/like' % (explanation_.id,)
@@ -210,16 +208,12 @@ class VoteTest(TestCase):
         
         explanation_ = Explanation()
         explanation_.explanation_text = 'test'
+        explanation_.votes_dislike += 1
         explanation_.word = word_
         explanation_.save()
-
-        votes_dislike = Like_and_dislike()
-        votes_dislike.votes_dislike = 0
-        votes_dislike.explanation = explanation_
-        votes_dislike.save()
         
         response = self.client.get(
-            '/%d/like' % (explanation_.id,)
+            '/%d/dislike' % (explanation_.id,)
         )
 
         self.assertRedirects(response, '/%d/' % (explanation_.id,))

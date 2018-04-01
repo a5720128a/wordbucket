@@ -9,7 +9,8 @@
           <p><a href="{% url 'wordbucket:logout' %}">logout</a></p>
         {% else %}
           You are not logged in
-          <a href="{% url 'wordbucket:login' %}">LOGIN</a>
+          <a href="{% url 'wordbucket:login' %}">LOGIN</a><br>
+          You can not like and dislike. 
           <br>
         {% endif %}
 
@@ -25,25 +26,26 @@
         <table id="id_explanation_table">
             {% for explanation in word.explanation_set.all %}
                 <tr>
-                    <td>explanation {{ forloop.counter }} : {{ explanation.explanation_text }}
-                    {% for vote in explanation.like_and_dislike_set.all %}<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td>explanation {{ forloop.counter }} : {{ explanation.explanation_text }}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {{ vote.votes_like }} &nbsp;<a href="{% url 'wordbucket:like' explanation.id %}">LIKE</a>
-                        &nbsp; {{ vote.votes_dislike }} &nbsp;<a href="{% url 'wordbucket:dislike' explanation.id %}">DISLIKE</a>
-                    {% endfor %}<br><br>
+                        {{ explanation.votes_like }} &nbsp;<a href="{% url 'wordbucket:like' explanation.id %}">LIKE</a>
+                        &nbsp; {{ explanation.votes_dislike }} &nbsp;<a href="{% url 'wordbucket:dislike' explanation.id %}">DISLIKE</a>
+                    <br><br>
                     </td>
                 </tr>
             {% endfor %}
         </table>
         <br>
         {% if user.is_authenticated %}
+            {% if user.get_username == 'admin' %}
         <a href="{% url 'wordbucket:export' word.id %}">export</a><br><br>
         <form action="{% url 'wordbucket:import' word.id %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file" name="csv_file" />
             <input type="submit" value="Upload" />
         </form>
+            {% endif %}
         {% endif %}
         <a href="{% url 'wordbucket:home' %}">HOME</a>
     </body>
